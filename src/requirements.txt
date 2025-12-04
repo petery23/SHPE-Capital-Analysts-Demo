@@ -1,0 +1,9 @@
+yfinance
+pandas
+scipy
+lxml
+html5lib
+matplotlib
+requests
+flask
+plotly
