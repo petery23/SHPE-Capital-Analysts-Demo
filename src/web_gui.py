@@ -78,27 +78,31 @@ HTML_TEMPLATE = """
             font-family: 'Outfit', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
         }
 
         .container {
             max-width: 1600px;
             margin: 0 auto;
-            padding: 24px 24px 32px;
-            min-height: 100vh;
+            padding: 8px 16px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         header {
             background: var(--orange);
-            border-radius: 16px;
-            padding: 18px 24px;
+            border-radius: 12px;
+            padding: 8px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             color: #ffffff;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
         }
 
         .logo {
@@ -108,22 +112,22 @@ HTML_TEMPLATE = """
         }
 
         .logo-icon {
-            width: 56px; height: 56px;
+            width: 44px; height: 44px;
             background: linear-gradient(135deg, var(--orange), var(--red));
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 700;
             color: #ffffff;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .logo-text h1 {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .logo-text span {
@@ -141,9 +145,9 @@ HTML_TEMPLATE = """
         .header-stat {
             background: #ffffff;
             border-radius: 999px;
-            padding: 8px 18px;
+            padding: 6px 14px;
             text-align: center;
-            min-width: 140px;
+            min-width: 120px;
             border: 1px solid rgba(255,255,255,0.5);
         }
 
@@ -164,7 +168,7 @@ HTML_TEMPLATE = """
 
         .header-stat-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             margin-top: 2px;
         }
@@ -172,39 +176,42 @@ HTML_TEMPLATE = """
         .header-stat.profit .header-stat-value { color: var(--accent-blue); }
         .header-stat.loss .header-stat-value { color: var(--accent-red); }
 
-        .main-layout {
+        .main-layout {  
             display: grid;
             grid-template-columns: 320px 1fr;
-            gap: 20px;
+            gap: 12px;
             flex: 1;
-            margin-top: 16px;
             min-height: 0;
+            overflow: hidden;
         }
 
         .left-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 10px;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+            flex-shrink: 0;
         }
 
         .card-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .card-title::before {
@@ -215,33 +222,34 @@ HTML_TEMPLATE = """
         }
 
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 8px;
         }
 
         .form-group label {
             display: block;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .form-group input, .form-group textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 8px 10px;
             background: var(--bg-input);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 8px;
             color: var(--text-primary);
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s ease;
         }
 
         .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
+            resize: none;
+            min-height: 60px;
+            max-height: 60px;
         }
 
         .form-group input:focus, .form-group textarea:focus {
@@ -251,20 +259,20 @@ HTML_TEMPLATE = """
         }
 
         .input-hint {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .help-toggle {
             background: none;
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
             cursor: pointer;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             width: 100%;
             text-align: left;
         }
@@ -295,22 +303,22 @@ HTML_TEMPLATE = """
 
         .run-btn {
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             background: linear-gradient(135deg, var(--orange), var(--red));
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             color: #ffffff;
             font-family: 'Outfit', sans-serif;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .run-btn:hover {
@@ -340,21 +348,21 @@ HTML_TEMPLATE = """
 
         .tuning-section {
             border-top: 1px solid var(--border-color);
-            margin-top: 16px;
-            padding-top: 16px;
+            margin-top: 10px;
+            padding-top: 10px;
         }
 
         .tuning-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 6px;
         }
 
         .checkbox-group input[type="checkbox"] {
@@ -363,7 +371,7 @@ HTML_TEMPLATE = """
         }
 
         .checkbox-group label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
             cursor: pointer;
             margin: 0;
@@ -373,20 +381,32 @@ HTML_TEMPLATE = """
         .right-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
             min-height: 0;
+            overflow: hidden;
         }
 
         /* Portfolio Rankings */
         .rankings-card {
             background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-height: 280px;
+            overflow: hidden;
+        }
+        
+        #rankingsContainer {
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
         }
 
         .rankings-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
 
         .stock-count {
@@ -416,9 +436,9 @@ HTML_TEMPLATE = """
         .rankings-table th.right { text-align: right; }
 
         .rankings-table td {
-            padding: 12px;
+            padding: 8px 12px;
             border-bottom: 1px solid rgba(45, 55, 72, 0.5);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .rankings-table tr {
@@ -490,7 +510,8 @@ HTML_TEMPLATE = """
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 400px;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .chart-header {
@@ -527,7 +548,8 @@ HTML_TEMPLATE = """
 
         .chart-container {
             flex: 1;
-            min-height: 350px;
+            min-height: 280px;
+            max-height: 400px;
         }
 
         .placeholder {
@@ -536,7 +558,7 @@ HTML_TEMPLATE = """
             align-items: center;
             justify-content: center;
             height: 100%;
-            min-height: 350px;
+            min-height: 280px;
             color: var(--text-muted);
         }
 
@@ -549,10 +571,11 @@ HTML_TEMPLATE = """
         .anim-controls {
             display: none;
             align-items: center;
-            gap: 12px;
-            padding-top: 12px;
+            gap: 10px;
+            padding-top: 10px;
             border-top: 1px solid var(--border-color);
-            margin-top: 12px;
+            margin-top: 10px;
+            flex-shrink: 0;
         }
 
         .anim-controls.show { display: flex; }
@@ -627,27 +650,43 @@ HTML_TEMPLATE = """
             display: none;
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(10, 15, 26, 0.9);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(243, 247, 251, 0.98));
+            backdrop-filter: blur(8px);
             z-index: 10;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .loading-overlay.show { display: flex; }
 
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 112, 192, 0.1);
+            border-top-color: var(--accent-blue);
+            border-right-color: var(--accent-orange);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 20px;
+        }
+
         .loading-text {
             font-size: 16px;
-            color: var(--text-secondary);
-            margin-top: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
         }
 
         .loading-progress {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--accent-blue);
             margin-top: 8px;
+            font-weight: 500;
         }
 
         /* Model modal */
@@ -796,10 +835,9 @@ HTML_TEMPLATE = """
         </div>
         <header>
             <div class="logo">
-                <div class="logo-icon">S</div>
                 <div class="logo-text">
                     <h1>SHPE Capital</h1>
-                    <span>Smart Portfolio Analyzer</span>
+                    <span>Technical Analysis Platform</span>
                 </div>
             </div>
             <div class="header-stats" id="headerStats" style="display: none;">
@@ -845,13 +883,13 @@ HTML_TEMPLATE = """
                         </div>
 
                         <div class="tuning-section">
-                            <label style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: block;">Strategy Settings</label>
+                            <label style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block;">Strategy Settings</label>
                             <div class="tuning-grid">
-                                <div class="form-group" style="margin-bottom: 8px;">
+                                <div class="form-group" style="margin-bottom: 6px;">
                                     <label>Fast SMA</label>
                                     <input type="number" id="shortWindow" value="20" min="5" max="50">
                                 </div>
-                                <div class="form-group" style="margin-bottom: 8px;">
+                                <div class="form-group" style="margin-bottom: 6px;">
                                     <label>Slow SMA</label>
                                     <input type="number" id="longWindow" value="50" min="20" max="200">
                                 </div>
@@ -866,7 +904,7 @@ HTML_TEMPLATE = """
                             </div>
                         </div>
 
-                        <button type="submit" class="run-btn" id="runBtn" style="margin-top: 16px;">
+                        <button type="submit" class="run-btn" id="runBtn" style="margin-top: 10px;">
                             <span class="btn-text">Analyze Portfolio</span>
                             <div class="spinner"></div>
                         </button>
@@ -887,7 +925,7 @@ HTML_TEMPLATE = """
                         </div>
                     </div>
                     <div class="loading-overlay" id="loadingOverlay">
-                        <div class="spinner" style="width: 40px; height: 40px; border-width: 3px; border-color: var(--accent-blue); border-top-color: transparent; display: block;"></div>
+                        <div class="loading-spinner"></div>
                         <div class="loading-text">Analyzing stocks...</div>
                         <div class="loading-progress" id="loadingProgress">0 / 0</div>
                     </div>
@@ -1035,7 +1073,7 @@ HTML_TEMPLATE = """
             
             const retVal = document.getElementById('totalReturnValue');
             retVal.textContent = returnPct.toFixed(2) + '%';
-            retVal.style.color = returnPct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            retVal.style.color = returnPct >= 0 ? 'var(--accent-blue)' : 'var(--accent-red)';
         }
 
         function renderAnimatedPortfolioChart() {
@@ -1341,7 +1379,7 @@ HTML_TEMPLATE = """
                 
                 const retVal = document.getElementById('totalReturnValue');
                 retVal.textContent = result.total_return_pct.toFixed(2) + '%';
-                retVal.style.color = result.total_return_pct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                retVal.style.color = result.total_return_pct >= 0 ? 'var(--accent-blue)' : 'var(--accent-red)';
 
                 // Render rankings and chart (start allocations at 0%)
                 renderRankings(result.stocks, 0);
