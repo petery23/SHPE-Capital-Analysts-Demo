@@ -43,22 +43,33 @@ HTML_TEMPLATE = """
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         :root {
-            --bg-primary: #0a0f1a;
-            --bg-secondary: #111827;
-            --bg-card: #1a2332;
-            --bg-input: #0d1421;
-            --accent-green: #00ff88;
-            --accent-red: #ff4757;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --accent-gold: #fbbf24;
-            --accent-cyan: #22d3ee;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border-color: #2d3748;
-            --glow-green: 0 0 30px rgba(0, 255, 136, 0.4);
-            --glow-red: 0 0 30px rgba(255, 71, 87, 0.4);
+            /* SHPE UF palette */
+            --navy: #001F5B;
+            --blue: #0070C0;
+            --baby-blue: #72A9B3;
+            --red: #D33A02;
+            --orange: #FD652F;
+            --gray: #626366;
+
+            /* Derived theme tokens aligned with shpeuf.com feel */
+            --bg-primary: #f3f7fb;          /* very light background sections */
+            --bg-secondary: var(--navy);    /* header/footer bands */
+            --bg-card: #ffffff;             /* white cards like content panels */
+            --bg-input: #f0f4fa;
+
+            --accent-blue: var(--blue);
+            --accent-blue-soft: #4a9bd8;
+            --accent-baby: var(--baby-blue);
+            --accent-green: var(--baby-blue);
+            --accent-red: var(--red);
+            --accent-orange: var(--orange);
+
+            --text-primary: #0b1220;
+            --text-secondary: #26314a;
+            --text-muted: var(--gray);
+
+            --border-color: #d0d8e8;
+            --glow-primary: 0 0 24px rgba(0, 112, 192, 0.35);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -70,32 +81,24 @@ HTML_TEMPLATE = """
             min-height: 100vh;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(ellipse at 10% 10%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-                radial-gradient(ellipse at 90% 90%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
         .container {
-            max-width: 1800px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 24px 24px 32px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         header {
+            background: var(--orange);
+            border-radius: 16px;
+            padding: 18px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+            color: #ffffff;
+            margin-bottom: 20px;
         }
 
         .logo {
@@ -105,30 +108,28 @@ HTML_TEMPLATE = """
         }
 
         .logo-icon {
-            width: 50px; height: 50px;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-            border-radius: 14px;
+            width: 56px; height: 56px;
+            background: linear-gradient(135deg, var(--orange), var(--red));
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
-            color: var(--bg-primary);
-            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
         }
 
         .logo-text h1 {
-            font-size: 26px;
-            font-weight: 600;
-            background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         .logo-text span {
-            font-size: 12px;
-            color: var(--text-muted);
-            letter-spacing: 3px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 2.2px;
             text-transform: uppercase;
         }
 
@@ -138,27 +139,25 @@ HTML_TEMPLATE = """
         }
 
         .header-stat {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px 20px;
+            background: #ffffff;
+            border-radius: 999px;
+            padding: 8px 18px;
             text-align: center;
             min-width: 140px;
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
         .header-stat.profit {
-            border-color: var(--accent-green);
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent);
+            border-color: rgba(0, 112, 192, 0.8);
         }
 
         .header-stat.loss {
-            border-color: var(--accent-red);
-            background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), transparent);
+            border-color: rgba(211, 58, 2, 0.8);
         }
 
         .header-stat-label {
             font-size: 10px;
-            color: var(--text-muted);
+            color: rgba(0,0,0,0.65);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -167,10 +166,10 @@ HTML_TEMPLATE = """
             font-family: 'JetBrains Mono', monospace;
             font-size: 22px;
             font-weight: 700;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
-        .header-stat.profit .header-stat-value { color: var(--accent-green); }
+        .header-stat.profit .header-stat-value { color: var(--accent-blue); }
         .header-stat.loss .header-stat-value { color: var(--accent-red); }
 
         .main-layout {
@@ -178,7 +177,7 @@ HTML_TEMPLATE = """
             grid-template-columns: 320px 1fr;
             gap: 20px;
             flex: 1;
-            margin-top: 20px;
+            margin-top: 16px;
             min-height: 0;
         }
 
@@ -193,6 +192,7 @@ HTML_TEMPLATE = """
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 20px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.08);
         }
 
         .card-title {
@@ -210,7 +210,7 @@ HTML_TEMPLATE = """
         .card-title::before {
             content: '';
             width: 4px; height: 14px;
-            background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-orange));
             border-radius: 2px;
         }
 
@@ -271,7 +271,7 @@ HTML_TEMPLATE = """
 
         .help-toggle:hover {
             border-color: var(--accent-blue);
-            color: var(--text-primary);
+            color: var(--accent-blue);
         }
 
         .help-content {
@@ -296,10 +296,10 @@ HTML_TEMPLATE = """
         .run-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--accent-green), #00cc6a);
+            background: linear-gradient(135deg, var(--orange), var(--red));
             border: none;
             border-radius: 12px;
-            color: var(--bg-primary);
+            color: #ffffff;
             font-family: 'Outfit', sans-serif;
             font-size: 15px;
             font-weight: 600;
@@ -315,7 +315,7 @@ HTML_TEMPLATE = """
 
         .run-btn:hover {
             transform: translateY(-2px);
-            box-shadow: var(--glow-green);
+            box-shadow: var(--glow-primary);
         }
 
         .run-btn:disabled {
@@ -379,7 +379,7 @@ HTML_TEMPLATE = """
 
         /* Portfolio Rankings */
         .rankings-card {
-            background: linear-gradient(135deg, var(--bg-card), #1e2d3d);
+            background: #ffffff;
         }
 
         .rankings-header {
@@ -390,8 +390,8 @@ HTML_TEMPLATE = """
         }
 
         .stock-count {
-            background: var(--accent-purple);
-            color: white;
+            background: var(--orange);
+            color: #ffffff;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
@@ -505,7 +505,7 @@ HTML_TEMPLATE = """
         }
 
         .chart-tab {
-            background: var(--bg-input);
+            background: #ffffff;
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
             padding: 6px 14px;
@@ -522,7 +522,7 @@ HTML_TEMPLATE = """
         .chart-tab.active {
             background: var(--accent-blue);
             border-color: var(--accent-blue);
-            color: white;
+            color: #ffffff;
         }
 
         .chart-container {
@@ -650,6 +650,78 @@ HTML_TEMPLATE = """
             margin-top: 8px;
         }
 
+        /* Model modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 16px;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            padding: 24px 28px 28px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            background: #ffffff; /* solid so title never clashes with scrolled content */
+            z-index: 1;
+        }
+        .modal h2 {
+            margin-bottom: 12px;
+            font-size: 22px;
+        }
+        .modal h3 {
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: var(--accent-blue);
+        }
+        .modal p, .modal li {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .modal ul { padding-left: 18px; margin: 8px 0; }
+        .modal-content {
+            overflow-y: auto;
+            padding-top: 4px;
+        }
+        .close-btn {
+            background: linear-gradient(135deg, var(--orange), var(--red));
+            border: none;
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 12px rgba(0,0,0,0.18);
+        }
+        .close-btn:hover { filter: brightness(1.05); box-shadow: 0 0 16px rgba(0,0,0,0.25); }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -661,6 +733,67 @@ HTML_TEMPLATE = """
 </head>
 <body>
     <div class="container">
+        <div class="modal-backdrop" id="modelModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>How the Model Works</h2>
+                    <button class="close-btn" onclick="closeModelInfo()">Close</button>
+                </div>
+                <div class="modal-content">
+                    <p><strong>Goal:</strong> Identify trend shifts with SMA crossover, avoid overbought/oversold traps via RSI, and allocate more capital to stronger performers.</p>
+
+                    <h3>Data</h3>
+                    <ul>
+                        <li>Price source: Yahoo Finance OHLCV via direct API calls.</li>
+                        <li>Frequency: Daily bars for chosen date range.</li>
+                    </ul>
+
+                    <h3>Indicators & Features</h3>
+                    <ul>
+                        <li><strong>Fast SMA (default 20)</strong> — short-term trend.</li>
+                        <li><strong>Slow SMA (default 50)</strong> — medium-term trend.</li>
+                        <li><strong>RSI (14)</strong> — overbought/oversold filter (blocks buys & sells in extremes).</li>
+                    </ul>
+
+                    <h3>Signal Logic</h3>
+                    <ul>
+                        <li><strong>BUY:</strong> Fast SMA crosses above Slow SMA AND RSI &lt; 70.</li>
+                        <li><strong>SELL:</strong> Fast SMA crosses below Slow SMA AND RSI &gt; 30.</li>
+                        <li><strong>Hold:</strong> No crossover.</li>
+                    </ul>
+
+                    <h3>Backtesting Flow (per stock)</h3>
+                    <ul>
+                        <li>Fetch price history → compute indicators → generate signals.</li>
+                        <li>Simulated trades with full capital per position (no leverage).</li>
+                        <li>Outputs equity curve, profit, return %, Sharpe, max drawdown, win rate.</li>
+                    </ul>
+
+                    <h3>Portfolio Allocation</h3>
+                    <ul>
+                        <li><strong>Smart allocation (default):</strong> Weight by Sharpe ratio (shifted positive) so stronger/risk-adjusted performers get more capital.</li>
+                        <li><strong>Equal weight:</strong> If smart allocation is disabled.</li>
+                    </ul>
+
+                    <h3>Why RSI Filter?</h3>
+                    <p>Prevents buying into overbought spikes (RSI &gt; 70) and panic-selling in oversold dips (RSI &lt; 30), reducing whipsaws.</p>
+
+                    <h3>What You Can Tune</h3>
+                    <ul>
+                        <li>Fast/Slow SMA windows.</li>
+                        <li>RSI filter on/off.</li>
+                        <li>Smart allocation on/off.</li>
+                    </ul>
+
+                    <h3>Outputs You’ll See</h3>
+                    <ul>
+                        <li>Animated portfolio equity curve with live profit/return.</li>
+                        <li>Per-stock equity, buys/sells, SMAs, RSI filter effects.</li>
+                        <li>Rankings table with allocation, profit, and return updating during animation.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
         <header>
             <div class="logo">
                 <div class="logo-icon">S</div>
@@ -686,11 +819,10 @@ HTML_TEMPLATE = """
                 <div class="card">
                     <div class="card-title">Portfolio Settings</div>
                     
-                    <button class="help-toggle" onclick="toggleHelp()">&#9432; How does this work?</button>
+                    <button class="help-toggle" onclick="openModelInfo()">&#9432; How does this work?</button>
                     <div class="help-content" id="helpContent">
-                        <p><strong>Smart Allocation:</strong> Enter multiple stocks and the system will analyze each one, then allocate MORE capital to better-performing stocks.</p>
-                        <p style="margin-top: 8px;"><strong>Strategy:</strong> Uses SMA crossover (when fast average crosses slow average = trade signal) + RSI filter to avoid bad entries.</p>
-                        <p style="margin-top: 8px;"><strong>Ranking:</strong> Stocks are scored by Sharpe ratio (risk-adjusted returns) to determine allocation.</p>
+                        <p><strong>Quick summary:</strong> SMA crossover + RSI filter, backtested per stock, weighted by Sharpe.</p>
+                        <p style="margin-top: 8px;">Click the button above for the full breakdown.</p>
                     </div>
 
                     <form id="backtestForm">
@@ -778,6 +910,7 @@ HTML_TEMPLATE = """
                     <div class="anim-controls" id="animControls">
                         <button class="anim-btn" id="playBtn">&#9658; Play</button>
                         <button class="anim-btn" id="resetBtn">&#8634; Reset</button>
+                        <button class="anim-btn" id="endBtn">&#9654;&#9654; End</button>
                         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
                         <div class="speed-control">
                             <label>Speed</label>
@@ -803,6 +936,17 @@ HTML_TEMPLATE = """
             document.getElementById('helpContent').classList.toggle('show');
         }
 
+        function openModelInfo() {
+            const modal = document.getElementById('modelModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModelInfo() {
+            document.getElementById('modelModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
@@ -815,7 +959,7 @@ HTML_TEMPLATE = """
             return sign + '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
 
-        function renderRankings(stocks) {
+        function renderRankings(stocks, frameIdx = null) {
             if (!stocks || stocks.length === 0) {
                 document.getElementById('rankingsContainer').innerHTML = '<div class="placeholder" style="min-height:200px;"><div>No results</div></div>';
                 return;
@@ -826,16 +970,44 @@ HTML_TEMPLATE = """
             html += '</tr></thead><tbody>';
 
             stocks.forEach((s, i) => {
+                // Default to final backtest metrics
+                let profit = s.profit;
+                let returnPct = s.return_pct;
+                let allocPctDisplay = s.allocation_pct;
+
+                // If we are animating and have per-stock values, compute dynamic metrics
+                if (frameIdx !== null && portfolioData && Array.isArray(s.values) && s.values.length > 0) {
+                    const maxIdx = s.values.length - 1;
+                    let ratio;
+                    if (maxIdx <= 0) {
+                        ratio = 1;
+                    } else if (frameIdx <= 0) {
+                        ratio = 0;
+                    } else {
+                        ratio = Math.min(frameIdx / maxIdx, 1);
+                    }
+                    const idx = Math.round(ratio * maxIdx);
+                    const currentVal = (s.values[idx] !== undefined ? s.values[idx] : s.allocation);
+                    if (s.allocation && s.allocation > 0) {
+                        profit = currentVal - s.allocation;
+                        returnPct = (currentVal / s.allocation - 1) * 100;
+                    } else {
+                        profit = 0;
+                        returnPct = 0;
+                    }
+                    allocPctDisplay = s.allocation_pct * ratio;
+                }
+
                 const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'normal';
-                const profitClass = s.profit >= 0 ? 'positive' : 'negative';
+                const profitClass = profit >= 0 ? 'positive' : 'negative';
                 const isSelected = selectedStock === s.ticker ? 'selected' : '';
-                
+
                 html += `<tr class="${isSelected}" onclick="selectStock('${s.ticker}')">`;
                 html += `<td><div class="rank-badge ${rankClass}">${i + 1}</div></td>`;
                 html += `<td class="stock-ticker">${s.ticker}</td>`;
-                html += `<td><div style="display:flex;align-items:center;gap:8px;"><div class="allocation-bar"><div class="allocation-fill" style="width:${s.allocation_pct}%"></div></div><span style="font-size:12px;color:var(--text-muted)">${s.allocation_pct.toFixed(1)}%</span></div></td>`;
-                html += `<td class="profit-cell ${profitClass}">${formatCurrency(s.profit)}</td>`;
-                html += `<td class="return-cell">${s.return_pct.toFixed(2)}%</td>`;
+                html += `<td><div style="display:flex;align-items:center;gap:8px;"><div class="allocation-bar"><div class="allocation-fill" style="width:${allocPctDisplay}%"></div></div><span style="font-size:12px;color:var(--text-muted)">${allocPctDisplay.toFixed(1)}%</span></div></td>`;
+                html += `<td class="profit-cell ${profitClass}">${formatCurrency(profit)}</td>`;
+                html += `<td class="return-cell">${returnPct.toFixed(2)}%</td>`;
                 html += '</tr>';
             });
 
@@ -846,6 +1018,7 @@ HTML_TEMPLATE = """
 
         function selectStock(ticker) {
             selectedStock = ticker;
+            // When selecting manually, show final metrics (no frame index)
             renderRankings(portfolioData.stocks);
             if (currentView === 'individual') {
                 renderIndividualChart(ticker);
@@ -881,27 +1054,26 @@ HTML_TEMPLATE = """
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Portfolio Total',
-                line: { color: '#00ff88', width: 3 },
+                line: { color: '#0070C0', width: 3 },
                 fill: 'tozeroy',
-                fillcolor: 'rgba(0, 255, 136, 0.1)'
+                fillcolor: 'rgba(0, 112, 192, 0.08)'
             }];
 
             const layout = {
-                template: 'plotly_dark',
-                paper_bgcolor: '#1a2332',
-                plot_bgcolor: '#0d1421',
-                font: { family: 'Outfit', color: '#f8fafc' },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: '#f0f4fa',
+                font: { family: 'Outfit', color: '#0b1220' },
                 showlegend: true,
                 legend: { orientation: 'h', y: -0.15, x: 0.5, xanchor: 'center' },
                 margin: { l: 60, r: 30, t: 20, b: 60 },
                 xaxis: { 
                     showgrid: true, 
-                    gridcolor: 'rgba(45,55,72,0.5)',
+                    gridcolor: '#d0d8e8',
                     range: [portfolioData.dates[0], portfolioData.dates[portfolioData.dates.length - 1]]
                 },
                 yaxis: { 
                     showgrid: true, 
-                    gridcolor: 'rgba(45,55,72,0.5)', 
+                    gridcolor: '#d0d8e8', 
                     tickprefix: '$', 
                     tickformat: ',.0f',
                     range: [0, Math.max(...portfolioData.portfolio_values) * 1.1]
@@ -935,6 +1107,11 @@ HTML_TEMPLATE = """
             // Update profit display with current value
             const currentValue = values[values.length - 1] || portfolioData.total_capital;
             updateProfitDisplay(currentValue, portfolioData.total_capital);
+            
+            // Update per-stock rankings dynamically to match current frame (use last index we just drew)
+            if (portfolioData.stocks && Array.isArray(portfolioData.stocks)) {
+                renderRankings(portfolioData.stocks, endIdx - 1);
+            }
             
             // Update progress bar
             const progress = (endIdx / portfolioData.dates.length) * 100;
@@ -970,7 +1147,33 @@ HTML_TEMPLATE = """
             if (portfolioData) {
                 updateProfitDisplay(portfolioData.total_capital, portfolioData.total_capital);
                 Plotly.update('chartContainer', { x: [[]], y: [[]] }, {}, [0]);
+                // Reset rankings to 0% allocations and zero P&L
+                renderRankings(portfolioData.stocks, 0);
             }
+        }
+
+        function skipToEnd() {
+            if (!portfolioData) return;
+            stopAnimation();
+
+            const lastIdx = portfolioData.dates.length - 1;
+            if (lastIdx < 0) return;
+
+            const dates = portfolioData.dates.slice();
+            const values = portfolioData.portfolio_values.slice();
+
+            Plotly.update('chartContainer', {
+                x: [dates],
+                y: [values]
+            }, {}, [0]);
+
+            const finalValue = values[values.length - 1] || portfolioData.total_capital;
+            updateProfitDisplay(finalValue, portfolioData.total_capital);
+
+            // Show final rankings/allocations
+            renderRankings(portfolioData.stocks, null);
+            document.getElementById('progressFill').style.width = '100%';
+            animFrame = portfolioData.dates.length;
         }
 
         document.getElementById('playBtn').addEventListener('click', () => {
@@ -979,6 +1182,7 @@ HTML_TEMPLATE = """
         });
 
         document.getElementById('resetBtn').addEventListener('click', resetAnimation);
+        document.getElementById('endBtn').addEventListener('click', skipToEnd);
 
         document.getElementById('speedSlider').addEventListener('input', () => {
             if (isPlaying) {
@@ -1005,9 +1209,9 @@ HTML_TEMPLATE = """
                     type: 'scatter',
                     mode: 'lines',
                     name: 'Price',
-                    line: { color: '#3b82f6', width: 2 },
+                    line: { color: '#0070C0', width: 2 },
                     fill: 'tozeroy',
-                    fillcolor: 'rgba(59, 130, 246, 0.1)'
+                    fillcolor: 'rgba(0, 112, 192, 0.08)'
                 },
                 {
                     x: stock.dates,
@@ -1015,7 +1219,7 @@ HTML_TEMPLATE = """
                     type: 'scatter',
                     mode: 'lines',
                     name: 'Fast SMA',
-                    line: { color: '#f59e0b', width: 1.5, dash: 'dot' }
+                    line: { color: '#FD652F', width: 1.5, dash: 'dot' }
                 },
                 {
                     x: stock.dates,
@@ -1023,7 +1227,7 @@ HTML_TEMPLATE = """
                     type: 'scatter',
                     mode: 'lines',
                     name: 'Slow SMA',
-                    line: { color: '#8b5cf6', width: 1.5, dash: 'dot' }
+                    line: { color: '#72A9B3', width: 1.5, dash: 'dot' }
                 }
             ];
 
@@ -1034,7 +1238,7 @@ HTML_TEMPLATE = """
                     type: 'scatter',
                     mode: 'markers',
                     name: 'BUY',
-                    marker: { symbol: 'triangle-up', size: 14, color: '#00ff88', line: { color: 'white', width: 2 } }
+                    marker: { symbol: 'triangle-up', size: 14, color: '#0070C0', line: { color: 'white', width: 2 } }
                 });
             }
 
@@ -1045,21 +1249,20 @@ HTML_TEMPLATE = """
                     type: 'scatter',
                     mode: 'markers',
                     name: 'SELL',
-                    marker: { symbol: 'triangle-down', size: 14, color: '#ff4757', line: { color: 'white', width: 2 } }
+                    marker: { symbol: 'triangle-down', size: 14, color: '#D33A02', line: { color: 'white', width: 2 } }
                 });
             }
 
             const layout = {
-                template: 'plotly_dark',
-                paper_bgcolor: '#1a2332',
-                plot_bgcolor: '#0d1421',
-                font: { family: 'Outfit', color: '#f8fafc' },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: '#f0f4fa',
+                font: { family: 'Outfit', color: '#0b1220' },
                 title: { text: stock.ticker + ' - ' + (stock.profit >= 0 ? '+' : '') + '$' + stock.profit.toFixed(2), font: { size: 16 } },
                 showlegend: true,
                 legend: { orientation: 'h', y: -0.15 },
                 margin: { l: 60, r: 30, t: 40, b: 60 },
-                xaxis: { showgrid: true, gridcolor: 'rgba(45,55,72,0.5)' },
-                yaxis: { showgrid: true, gridcolor: 'rgba(45,55,72,0.5)', tickprefix: '$' },
+                xaxis: { showgrid: true, gridcolor: '#d0d8e8' },
+                yaxis: { showgrid: true, gridcolor: '#d0d8e8', tickprefix: '$' },
                 hovermode: 'x unified'
             };
 
@@ -1140,8 +1343,8 @@ HTML_TEMPLATE = """
                 retVal.textContent = result.total_return_pct.toFixed(2) + '%';
                 retVal.style.color = result.total_return_pct >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
-                // Render rankings and chart
-                renderRankings(result.stocks);
+                // Render rankings and chart (start allocations at 0%)
+                renderRankings(result.stocks, 0);
                 renderPortfolioChart();
 
                 document.getElementById('animControls').classList.add('show');
