@@ -7,3 +7,4 @@ matplotlib
 requests
 flask
 plotly
+gunicorn
