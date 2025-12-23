@@ -31,3 +31,5 @@ def calculate_max_drawdown(equity_curve):
     drawdown = (equity_curve - running_max) / running_max
     max_drawdown = drawdown.min()
     return max_drawdown * 100
+
+
