@@ -761,6 +761,42 @@ HTML_TEMPLATE = """
         }
         .close-btn:hover { filter: brightness(1.05); box-shadow: 0 0 16px rgba(0,0,0,0.25); }
 
+        .error-item {
+            background: #fff5f5;
+            border-left: 4px solid var(--accent-red);
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+        }
+        .error-item.warning {
+            background: #fffbf0;
+            border-left-color: var(--accent-orange);
+        }
+        .error-ticker {
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-red);
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .error-item.warning .error-ticker {
+            color: var(--accent-orange);
+        }
+        .error-message {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .error-details {
+            margin-top: 8px;
+            padding-left: 16px;
+        }
+        .error-details li {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
@@ -830,6 +866,23 @@ HTML_TEMPLATE = """
                         <li>Per-stock equity, buys/sells, SMAs, RSI filter effects.</li>
                         <li>Rankings table with allocation, profit, and return updating during animation.</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop" id="warningModal" onclick="if(event.target === this) cancelAnalysis()">
+            <div class="modal" style="max-width: 600px;" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2 style="color: var(--accent-red);">⚠️ Validation Warnings</h2>
+                </div>
+                <div class="modal-content">
+                    <p style="margin-bottom: 16px; color: var(--text-secondary);">
+                        The following issues were found with the stocks you entered:
+                    </p>
+                    <div id="warningErrors" style="margin-bottom: 20px;"></div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <button class="close-btn" onclick="cancelAnalysis()" style="background: var(--gray);">Cancel</button>
+                        <button class="close-btn" id="continueBtn" onclick="continueAnalysis()">Continue Anyway</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -969,6 +1022,7 @@ HTML_TEMPLATE = """
         let animFrame = 0;
         let isPlaying = false;
         let animInterval = null;
+        let pendingRequestData = null;
 
         function toggleHelp() {
             document.getElementById('helpContent').classList.toggle('show');
@@ -983,6 +1037,109 @@ HTML_TEMPLATE = """
         function closeModelInfo() {
             document.getElementById('modelModal').classList.remove('show');
             document.body.style.overflow = '';
+        }
+
+        function showWarningModal(errors, criticalErrors, warnings, canContinue) {
+            const errorsContainer = document.getElementById('warningErrors');
+            errorsContainer.innerHTML = '';
+            
+            errors.forEach(error => {
+                const isWarning = error.error === 'partial_data';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = `error-item ${isWarning ? 'warning' : ''}`;
+                
+                let html = `<div class="error-ticker">${error.ticker}</div>`;
+                html += `<div class="error-message">${error.message}</div>`;
+                
+                if (error.issues && error.issues.length > 0) {
+                    html += '<ul class="error-details">';
+                    error.issues.forEach(issue => {
+                        html += `<li>${issue.message}</li>`;
+                    });
+                    html += '</ul>';
+                }
+                
+                errorDiv.innerHTML = html;
+                errorsContainer.appendChild(errorDiv);
+            });
+            
+            const continueBtn = document.getElementById('continueBtn');
+            if (!canContinue) {
+                continueBtn.style.display = 'none';
+            } else {
+                continueBtn.style.display = 'block';
+            }
+            
+            const modal = document.getElementById('warningModal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeWarningModal() {
+            document.getElementById('warningModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function cancelAnalysis() {
+            closeWarningModal();
+            const runBtn = document.getElementById('runBtn');
+            runBtn.classList.remove('loading');
+            runBtn.disabled = false;
+            document.getElementById('loadingOverlay').classList.remove('show');
+            pendingRequestData = null;
+        }
+
+        async function continueAnalysis() {
+            closeWarningModal();
+            if (!pendingRequestData) return;
+            
+            // Add flag to skip validation and proceed
+            pendingRequestData.skip_validation = true;
+            
+            const runBtn = document.getElementById('runBtn');
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/portfolio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pendingRequestData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+
+                portfolioData = result;
+                selectedStock = result.stocks[0]?.ticker;
+
+                // Update header stats
+                document.getElementById('headerStats').style.display = 'flex';
+                const profitStat = document.getElementById('totalProfitStat');
+                profitStat.className = 'header-stat ' + (result.total_profit >= 0 ? 'profit' : 'loss');
+                document.getElementById('totalProfitValue').textContent = formatCurrency(result.total_profit);
+                
+                const retVal = document.getElementById('totalReturnValue');
+                retVal.textContent = result.total_return_pct.toFixed(2) + '%';
+                retVal.style.color = result.total_return_pct >= 0 ? 'var(--accent-blue)' : 'var(--accent-red)';
+
+                // Render rankings and chart (start allocations at 0%)
+                renderRankings(result.stocks, 0);
+                renderPortfolioChart();
+
+                document.getElementById('animControls').classList.add('show');
+
+            } catch (error) {
+                showToast(error.message);
+            } finally {
+                runBtn.classList.remove('loading');
+                runBtn.disabled = false;
+                overlay.classList.remove('show');
+                pendingRequestData = null;
+            }
         }
 
         function showToast(msg) {
@@ -1368,6 +1525,19 @@ HTML_TEMPLATE = """
                     throw new Error(result.error || 'Analysis failed');
                 }
 
+                // Check if this is a validation error response
+                if (result.validation_errors) {
+                    pendingRequestData = data;
+                    showWarningModal(
+                        result.errors,
+                        result.critical_errors,
+                        result.warnings,
+                        result.can_continue
+                    );
+                    // Don't hide loading yet - user will decide
+                    return;
+                }
+
                 portfolioData = result;
                 selectedStock = result.stocks[0]?.ticker;
 
@@ -1399,6 +1569,77 @@ HTML_TEMPLATE = """
 </body>
 </html>
 """
+
+
+def validate_stock(ticker, start_date, end_date):
+    """
+    Validate a stock and return error information if there are issues.
+    Returns None if valid, or a dict with error information.
+    """
+    try:
+        price_data = fetch_price_history(ticker, start_date, end_date)
+        
+        if price_data.empty:
+            return {
+                'ticker': ticker,
+                'error': 'not_found',
+                'message': f'{ticker} could not be found in the database'
+            }
+        
+        # Check if stock has data for the full time frame
+        # Account for weekends and holidays - allow up to 5 days difference
+        data_start = price_data.index[0].date()
+        data_end = price_data.index[-1].date()
+        
+        issues = []
+        
+        # Calculate days difference
+        start_diff = (data_start - start_date).days
+        end_diff = (end_date - data_end).days
+        
+        # Only flag if the gap is more than 5 days (to account for weekends + holidays)
+        if start_diff > 5:
+            issues.append({
+                'type': 'partial_data',
+                'message': f'{ticker} did not exist at the start date ({start_date}). Data starts from {data_start}.'
+            })
+        elif start_diff > 0:
+            # Small gap (likely weekend/holiday) - this is fine, don't flag it
+            pass
+        
+        if end_diff > 5:
+            issues.append({
+                'type': 'partial_data',
+                'message': f'{ticker} data ends before the end date ({end_date}). Data ends at {data_end}.'
+            })
+        elif end_diff > 0:
+            # Small gap (likely weekend/holiday) - this is fine, don't flag it
+            pass
+        
+        if issues:
+            return {
+                'ticker': ticker,
+                'error': 'partial_data',
+                'issues': issues,
+                'data_start': data_start.isoformat(),
+                'data_end': data_end.isoformat(),
+                'message': f'{ticker} does not have complete data for the specified time frame'
+            }
+        
+        return None  # Stock is valid
+        
+    except DataFetchError as e:
+        return {
+            'ticker': ticker,
+            'error': 'fetch_error',
+            'message': str(e)
+        }
+    except Exception as e:
+        return {
+            'ticker': ticker,
+            'error': 'unknown_error',
+            'message': f'Unexpected error: {str(e)}'
+        }
 
 
 def analyze_single_stock(ticker, start_date, end_date, short_window, long_window, use_rsi):
@@ -1490,6 +1731,30 @@ def run_portfolio_analysis():
         
         if end_date <= start_date:
             return jsonify({'error': 'End date must be after start date'}), 400
+        
+        skip_validation = data.get('skip_validation', False)
+        
+        # Validate all stocks first (unless skipping validation)
+        if not skip_validation:
+            validation_errors = []
+            for ticker in tickers:
+                error_info = validate_stock(ticker, start_date, end_date)
+                if error_info:
+                    validation_errors.append(error_info)
+            
+            # If there are validation errors, return them for user review
+            if validation_errors:
+                # Check if any are critical (not found) vs warnings (partial data)
+                critical_errors = [e for e in validation_errors if e['error'] in ['not_found', 'fetch_error', 'unknown_error']]
+                warnings = [e for e in validation_errors if e['error'] == 'partial_data']
+                
+                return jsonify({
+                    'validation_errors': True,
+                    'errors': validation_errors,
+                    'critical_errors': critical_errors,
+                    'warnings': warnings,
+                    'can_continue': len(critical_errors) == 0  # Can continue if only warnings
+                }), 200  # Return 200 so frontend can handle it
         
         # Analyze all stocks
         stock_results = []
