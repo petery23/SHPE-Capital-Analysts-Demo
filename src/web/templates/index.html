@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHPE Capital - Portfolio Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="modal-backdrop" id="modelModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>How Does This Model Work?</h2>
+                    <button class="close-btn" onclick="closeModelInfo()">Close</button>
+                </div>
+                <div class="modal-content">
+                    <p><strong>Goal:</strong> Identify trend shifts with SMA crossover, avoid overbought/oversold traps via RSI, and allocate more capital to stronger performers.</p>
+
+                    <h3>Data</h3>
+                    <ul>
+                        <li>Price source: Yahoo Finance OHLCV via direct API calls.</li>
+                        <li>Frequency: Daily bars for chosen date range.</li>
+                    </ul>
+
+                    <h3>Indicators & Features</h3>
+                    <ul>
+                        <li><strong>Fast SMA (default 20)</strong> — short-term trend.</li>
+                        <li><strong>Slow SMA (default 50)</strong> — medium-term trend.</li>
+                        <li><strong>RSI (14)</strong> — overbought/oversold filter (blocks buys & sells in extremes).</li>
+                    </ul>
+
+                    <h3>Signal Logic</h3>
+                    <ul>
+                        <li><strong>BUY:</strong> Fast SMA crosses above Slow SMA AND RSI &lt; 70.</li>
+                        <li><strong>SELL:</strong> Fast SMA crosses below Slow SMA AND RSI &gt; 30.</li>
+                        <li><strong>Hold:</strong> No crossover.</li>
+                    </ul>
+
+                    <h3>Backtesting Flow (per stock)</h3>
+                    <ul>
+                        <li>Fetch price history → compute indicators → generate signals.</li>
+                        <li>Simulated trades with full capital per position (no leverage).</li>
+                        <li>Outputs equity curve, profit, return %, Sharpe, max drawdown, win rate.</li>
+                    </ul>
+
+                    <h3>Trade Execution & Amounts</h3>
+                    <ul>
+                        <li><strong>BUY signals:</strong> Uses <strong>100% of available cash</strong> to purchase shares at the signal price. The amount invested equals all cash on hand, and shares are calculated as: <code>shares = cash / price</code>.</li>
+                        <li><strong>SELL signals:</strong> Sells <strong>100% of current positions</strong> at the signal price. The amount received equals the total value of all holdings, calculated as: <code>amount = shares × price</code>.</li>
+                        <li>This is an "all-in, all-out" strategy — the model fully commits available capital on each trade signal rather than using partial positions.</li>
+                        <li>Hover over BUY/SELL arrows in individual stock charts to see the exact amount, price, and number of shares for each trade.</li>
+                    </ul>
+
+                    <h3>Portfolio Allocation</h3>
+                    <ul>
+                        <li><strong>Smart allocation (default):</strong> Weight by Sharpe ratio (shifted positive) so stronger/risk-adjusted performers get more capital.</li>
+                        <li><strong>Equal weight:</strong> If smart allocation is disabled.</li>
+                    </ul>
+
+                    <h3>Why RSI Filter?</h3>
+                    <p>Prevents buying into overbought spikes (RSI &gt; 70) and panic-selling in oversold dips (RSI &lt; 30), reducing whipsaws.</p>
+
+                    <h3>What You Can Tune</h3>
+                    <ul>
+                        <li>Fast/Slow SMA windows.</li>
+                        <li>RSI filter on/off.</li>
+                        <li>Smart allocation on/off.</li>
+                    </ul>
+
+                    <h3>Outputs You’ll See</h3>
+                    <ul>
+                        <li>Animated portfolio equity curve with live profit/return.</li>
+                        <li>Per-stock equity, buys/sells, SMAs, RSI filter effects.</li>
+                        <li>Rankings table with allocation, profit, and return updating during animation.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop" id="warningModal" onclick="if(event.target === this) cancelAnalysis()">
+            <div class="modal modal-warning" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>⚠️ Validation Warnings</h2>
+                </div>
+                <div class="modal-content">
+                    <p class="modal-content-text">
+                        The following issues were found with the stocks you entered:
+                    </p>
+                    <div id="warningErrors" class="warning-errors"></div>
+                    <div class="modal-actions">
+                        <button class="close-btn btn-cancel" onclick="cancelAnalysis()">Cancel</button>
+                        <button class="close-btn" id="continueBtn" onclick="continueAnalysis()">Continue Anyway</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <header>
+            <div class="logo">
+                <div class="logo-text">
+                    <h1>SHPE Capital</h1>
+                    <span>Technical Analysis Platform</span>
+                </div>
+            </div>
+            <div class="header-stats header-stats-hidden" id="headerStats">
+                <div class="header-stat" id="totalProfitStat">
+                    <div class="header-stat-label">Portfolio Profit</div>
+                    <div class="header-stat-value" id="totalProfitValue">$0</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-label">Total Return</div>
+                    <div class="header-stat-value header-stat-value-default" id="totalReturnValue">0%</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-title">Portfolio Settings</div>
+                    
+                    <button class="help-toggle" onclick="openModelInfo()">&#9432; How does this model work?</button>
+                    <div class="help-content" id="helpContent">
+                        <p><strong>Quick summary:</strong> SMA crossover + RSI filter, backtested per stock, weighted by Sharpe.</p>
+                        <p class="help-text">Click the button above for the full breakdown.</p>
+                    </div>
+
+                    <form id="backtestForm">
+                        <div class="form-group">
+                            <label for="tickers">Stock Tickers</label>
+                            <textarea id="tickers" placeholder="AAPL, MSFT, GOOGL, NVDA, TSLA" required>AAPL, MSFT, GOOGL, NVDA, AMZN</textarea>
+                            <div class="input-hint">Separate multiple tickers with commas</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="capital">Total Capital ($)</label>
+                            <input type="number" id="capital" value="100000" min="1000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" value="2023-01-01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" value="2024-06-01" required>
+                        </div>
+
+                        <div class="tuning-section">
+                            <label class="tuning-section-label">Strategy Settings</label>
+                            <div class="tuning-grid">
+                                <div class="form-group tuning-form-group">
+                                    <label for="shortWindow">Fast SMA</label>
+                                    <input type="number" id="shortWindow" value="20" min="5" max="50">
+                                </div>
+                                <div class="form-group tuning-form-group">
+                                    <label for="longWindow">Slow SMA</label>
+                                    <input type="number" id="longWindow" value="50" min="20" max="200">
+                                </div>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="useRsi" checked>
+                                <label for="useRsi">Use RSI Filter</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="smartAllocation" checked>
+                                <label for="smartAllocation">Smart Allocation (weight by performance)</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="run-btn run-btn-top" id="runBtn">
+                            <span class="btn-text">Analyze Portfolio</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card rankings-card rankings-card-relative">
+                    <div class="rankings-header">
+                        <div class="card-title card-title-no-margin">Stock Rankings</div>
+                        <div class="stock-count" id="stockCount">0 stocks</div>
+                    </div>
+                    <div id="rankingsContainer">
+                        <div class="placeholder placeholder-min-height">
+                            <div class="placeholder-icon">&#127942;</div>
+                            <div>Stocks will be ranked by profit here</div>
+                        </div>
+                    </div>
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Analyzing stocks...</div>
+                        <div class="loading-progress" id="loadingProgress">0 / 0</div>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <div class="card-title card-title-no-margin">Performance Chart</div>
+                        <div class="chart-tabs" id="chartTabs">
+                            <button class="chart-tab active" data-view="portfolio">Portfolio</button>
+                            <button class="chart-tab" data-view="individual">Individual</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="chartContainer">
+                        <div class="placeholder">
+                            <div class="placeholder-icon-large">&#128200;</div>
+                            <div class="placeholder-text">Run analysis to see charts</div>
+                        </div>
+                    </div>
+                    <div class="anim-controls" id="animControls">
+                        <button class="anim-btn" id="playBtn">&#9658; Play</button>
+                        <button class="anim-btn" id="resetBtn">&#8634; Reset</button>
+                        <button class="anim-btn" id="endBtn">&#9654;&#9654; End</button>
+                        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                        <div class="speed-control">
+                            <label for="speedSlider">Speed</label>
+                            <input type="range" class="speed-slider" id="speedSlider" min="1" max="50" value="25">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

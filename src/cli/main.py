@@ -1,8 +1,8 @@
 import datetime
 import traceback
 
-from . import backtester, strategy
-from .data_fetcher import DataFetchError, fetch_price_history
+from ..core import backtester, strategy
+from ..core.data_fetcher import DataFetchError, fetch_price_history
 
 def main():
     """
